@@ -1,6 +1,6 @@
 [package]
 name = "rust-web-server"
-version = "0.0.5"
+version = "0.1.0"
 authors = ["Eric Gomez <eric_gomez_1@hotmail.com>"]
 license = "MIT"
 description = "a simple multi-threaded web server."
