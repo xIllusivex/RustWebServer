@@ -20,23 +20,23 @@ fn handle_connection(mut stream: TcpStream) {
     let uri = String::from_utf8_lossy(&buffer);
     let uri: Vec<&str> = uri.split("\r\n").next().unwrap().split(" ").collect();
     let mut contents = String::new();
+    let mut status = "200 OK";
 
-    if uri[1] == "/" {
-        //opening and reading the contents of our resource
-        let mut file = File::open(format!("{}/index.html", RESOURCES)).unwrap();
-        file.read_to_string(&mut contents).unwrap();
-    }
-    else if uri[1].ends_with("css") {
-        let mut file = File::open(format!("{}{}", RESOURCES, uri[1])).unwrap();
-        file.read_to_string(&mut contents).unwrap();
-    }
-    else {
-        let mut file = File::open(format!("{}/missing.html", RESOURCES)).unwrap();
-        file.read_to_string(&mut contents).unwrap();
-    }
+    // checking the uri for a valid route.
+    let filename = if uri[1] == "/" {
+        "/index.html"
+    } else if uri[1].ends_with("css") {
+        uri[1]
+    } else {
+        status = "404 NOT FOUND";
+        "/missing.html"
+    };
+    // reading the contents of the file and passing it to the contents variable
+    let mut file = File::open(format!("{}{}", RESOURCES, filename)).unwrap();
+    file.read_to_string(&mut contents).unwrap();
 
-    // sending the resonse
-    let response = format!("HTTP/1.1 200 OK\r\n\r\n{}", contents);
+    // sending the response
+    let response = format!("HTTP/1.1 {}\r\n\r\n{}", status, contents);
     stream.write(response.as_bytes()).unwrap();
     stream.flush().unwrap();
 }
